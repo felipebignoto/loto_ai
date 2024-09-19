@@ -130,7 +130,7 @@ const Basic: React.FC = () => {
     <section className="flex flex-col items-center p-2">
       <div
         {...getRootProps({ className: 'dropzone' })}
-        className="p-6 border-solid text-center flex items-center justify-center border-black border-4 w-7/12 h-40"
+        className="p-6 border-dashed text-center flex items-center justify-center border-black border-4 w-7/12 h-40 bg-slate-50"
       >
         <input {...getInputProps()} />
         <p>
