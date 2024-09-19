@@ -31,28 +31,38 @@ function generateExcel(data: any) {
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Loteria')
 
-  // Adiciona as colunas
-  worksheet.columns = [
+  // Descobre o maior número de elementos em um jogo
+  const maxNumbers = Math.max(
+    ...(Object.values(data) as number[][]).map((numbers) => numbers.length),
+  )
+
+  // Cria as colunas dinamicamente, considerando o número máximo de números por jogo
+  const columns = [
     { header: 'Jogo', key: 'game', width: 10 },
-    { header: 'Primeiro Número', key: 'num1', width: 20 },
-    { header: 'Segundo Número', key: 'num2', width: 20 },
-    { header: 'Terceiro Número', key: 'num3', width: 20 },
-    { header: 'Quarto Número', key: 'num4', width: 20 },
-    { header: 'Quinto Número', key: 'num5', width: 20 },
-    { header: 'Sexto Número', key: 'num6', width: 20 },
+    ...Array.from({ length: maxNumbers }, (_, i) => ({
+      header: `${i + 1}º Número`,
+      key: `num${i + 1}`,
+      width: 15,
+    })),
   ]
 
+  worksheet.columns = columns
+
+  // Preenche as linhas com os números dos jogos
   Object.keys(data).forEach((key, index) => {
     const numbers = data[key]
-    worksheet.addRow({
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const row: { [key: string]: any } = {
       game: index + 1,
-      num1: numbers[0],
-      num2: numbers[1],
-      num3: numbers[2],
-      num4: numbers[3],
-      num5: numbers[4],
-      num6: numbers[5],
+    }
+
+    // Preenche dinamicamente cada número na linha
+    numbers.forEach((num: number, i: number) => {
+      row[`num${i + 1}`] = num
     })
+
+    worksheet.addRow(row)
   })
 
   // Gera o arquivo e baixa
@@ -86,7 +96,7 @@ const Basic: React.FC = () => {
     setLoading(true)
     try {
       const prompt =
-        'Please analyze the photos I will send. Each photo contains a lottery game with 6 numbers. I need you to return a JSON object where each key represents a game, and the value is an array of the 6 numbers from that game. For example:\n\n' +
+        'Please analyze the photos I will send. Each photo contains a lottery game with 6 or 15 numbers. I need you to return a JSON object where each key represents a game, and the value is an array of the 6 numbers from that game. For example:\n\n' +
         '{\n' +
         '  "game1": [number1, number2, number3, number4, number5, number6],\n' +
         '  "game2": [number1, number2, number3, number4, number5, number6],\n' +
