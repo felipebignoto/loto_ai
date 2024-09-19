@@ -3,16 +3,16 @@
 ## Páginas
 
 [] - Home
-[] - Upload - React Dropzone
+[x] - Upload - React Dropzone
 [] - Segurança - restrições de arquivo para upload
 [] - Loading
-[] - Download
+[x] - Download
 
 ## Processamento
 
-[] - Leitura de arquivo - Tessercat.js
-[] - criação do excel - SheetJS
-[] - Download do excel
+[x] - Leitura de arquivo - Gemini
+[x] - criação do excel - SheetJS
+[x] - Download do excel
 
 ## Tasks
 
