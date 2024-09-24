@@ -9,7 +9,7 @@ Este projeto tem o objetivo de facilitar o controle de apostas de loteria atrav�
 - **TypeScript**
 - **Tailwind CSS**
 - **Node.js**
-- **Tesseract**
+- **Google Gemini**
 
 ## Como Executar o Projeto
 
@@ -17,7 +17,7 @@ Siga os passos abaixo para clonar o repositório, instalar as dependências e in
 
 1. **Clone o repositório:**
 
-   `git clone https://github.com/felipebignoto/desafio-brandmonitor.git`
+   `git clone https://github.com/felipebignoto/loto_ocr.git`
 
 2. **Instale as dependências:**
 
