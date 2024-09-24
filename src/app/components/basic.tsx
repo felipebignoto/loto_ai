@@ -4,16 +4,34 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 
+const games = [
+  {
+    name: 'LotoFacil',
+    jogosPorCartao: 3,
+    mensagem:
+      'Please analyze the photo provided meticulously. The image displays several "Lotofácil" lottery tickets, each structured in clear, separated rows. Each row corresponds to a distinct game, with 15 numbers arranged horizontally. I need you to extract the numbers for each game without mixing them between games. Please return a JSON object where each key represents a game (e.g., "game1", "game2", "game3"), and the value is an array of the 15 numbers specific to that game. The games are distinct and should not share numbers with each other. For example:\n\n' +
+      '{\n' +
+      '  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+      '  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+      '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
+      '}',
+  },
+  {
+    name: 'MegaSena',
+    jogosPorCartao: 2,
+    mensagem: 'teste',
+  },
+]
+
 // Função para converter arquivo em base64 utilizando o FileReader
 function fileToBase64(
   file: File,
 ): Promise<{ inlineData: { data: string; mimeType: string } }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.readAsDataURL(file) // Converte o arquivo para base64
+    reader.readAsDataURL(file)
     reader.onload = () => {
       const base64Data = reader.result as string
-      // Remove o prefixo "data:mimeType;base64," da string gerada pelo FileReader
       const base64 = base64Data.split(',')[1]
       resolve({
         inlineData: {
@@ -36,7 +54,6 @@ function generateExcel(data: any) {
     ...(Object.values(data) as number[][]).map((numbers) => numbers.length),
   )
 
-  // Cria as colunas dinamicamente, considerando o número máximo de números por jogo
   const columns = [
     { header: 'Jogo', key: 'game', width: 10 },
     ...Array.from({ length: maxNumbers }, (_, i) => ({
@@ -48,7 +65,6 @@ function generateExcel(data: any) {
 
   worksheet.columns = columns
 
-  // Preenche as linhas com os números dos jogos
   Object.keys(data).forEach((key, index) => {
     const numbers = data[key]
 
@@ -76,6 +92,8 @@ function generateExcel(data: any) {
 
 const Basic: React.FC = () => {
   const [loading, setLoading] = useState(false)
+  const [selectedGame, setSelectedGame] = useState(games[0])
+
   const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_API_KEY!)
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
@@ -96,13 +114,14 @@ const Basic: React.FC = () => {
     setLoading(true)
     try {
       const prompt =
-        'Please analyze the photos I will send. Each photo contains a lottery game with 6 or 15 numbers. I need you to return a JSON object where each key represents a game, and the value is an array of the 6 numbers from that game. For example:\n\n' +
-        '{\n' +
-        '  "game1": [number1, number2, number3, number4, number5, number6],\n' +
-        '  "game2": [number1, number2, number3, number4, number5, number6],\n' +
-        '  ...\n' +
-        '}'
-
+        selectedGame.mensagem ??
+        'Please analyze the photo provided meticulously. The image displays several "Lotofácil" lottery tickets, each structured in clear, separated rows. Each row corresponds to a distinct game, with 15 numbers arranged horizontally. I need you to extract the numbers for each game without mixing them between games. Please return a JSON object where each key represents a game (e.g., "game1", "game2", "game3"), and the value is an array of the 15 numbers specific to that game. The games are distinct and should not share numbers with each other. For example:\n\n' +
+          '{\n' +
+          '  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+          '  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+          '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
+          '}'
+      console.log(prompt)
       // Converte todos os arquivos para base64
       const imageParts = await Promise.all(
         acceptedFiles.map((file) => fileToBase64(file)),
@@ -126,8 +145,28 @@ const Basic: React.FC = () => {
     }
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const gameName = e.target.value
+    const selectedGame = games.find((game) => game.name === gameName)
+    setSelectedGame(selectedGame || games[0]) // Pode definir um valor padrão ou lidar com undefined/null se necessário
+  }
+
   return (
     <section className="flex flex-col items-center p-2">
+      <div>
+        <select
+          value={selectedGame.name}
+          onChange={handleChange}
+          className="mb-4 p-2 border rounded"
+        >
+          <option value="">Selecione o Tipo de Jogo</option>
+          {games.map((game, index) => (
+            <option key={index} value={game.name}>
+              {game.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <div
         {...getRootProps({ className: 'dropzone' })}
         className="p-6 border-dashed text-center flex items-center justify-center border-black border-4 w-7/12 h-40 bg-slate-50"
