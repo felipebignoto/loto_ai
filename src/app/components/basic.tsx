@@ -9,11 +9,14 @@ const games = [
     name: 'LotoFacil',
     jogosPorCartao: 3,
     mensagem:
-      'Please analyze the photo provided meticulously. The image displays several "Lotofácil" lottery tickets, each structured in clear, separated rows. Each row corresponds to a distinct game, with 15 numbers arranged horizontally. I need you to extract the numbers for each game without mixing them between games. Please return a JSON object where each key represents a game (e.g., "game1", "game2", "game3"), and the value is an array of the 15 numbers specific to that game. The games are distinct and should not share numbers with each other. For example:\n\n' +
+      'Please analyze these 2 photos I will send. Each photo contains 3 lottery games with 15 numbers per game. I need you to return a JSON object where each key represents a game, and the value is an array of 15 numbers from that game. Start by reading the first photo, separating its 3 games as `game1`, `game2`, and `game3`. Then, read the second photo, where the games will be named `game4`, `game5`, and `game6`. The result should include all 6 games, structured like this:\n\n' +
       '{\n' +
       '  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
       '  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
+      '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+      '  "game4": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+      '  "game5": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
+      '  "game6": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
       '}',
   },
   {
@@ -113,15 +116,7 @@ const Basic: React.FC = () => {
   async function processFiles() {
     setLoading(true)
     try {
-      const prompt =
-        selectedGame.mensagem ??
-        'Please analyze the photo provided meticulously. The image displays several "Lotofácil" lottery tickets, each structured in clear, separated rows. Each row corresponds to a distinct game, with 15 numbers arranged horizontally. I need you to extract the numbers for each game without mixing them between games. Please return a JSON object where each key represents a game (e.g., "game1", "game2", "game3"), and the value is an array of the 15 numbers specific to that game. The games are distinct and should not share numbers with each other. For example:\n\n' +
-          '{\n' +
-          '  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-          '  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-          '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
-          '}'
-      console.log(prompt)
+      const prompt = selectedGame.mensagem ?? games[0].mensagem
       // Converte todos os arquivos para base64
       const imageParts = await Promise.all(
         acceptedFiles.map((file) => fileToBase64(file)),
@@ -136,6 +131,7 @@ const Basic: React.FC = () => {
           .replace(/\n```/g, '')
           .trim()
         const jsonObject = JSON.parse(jsonString)
+        console.log(jsonObject)
         generateExcel(jsonObject)
       }
     } catch (error) {
@@ -159,7 +155,6 @@ const Basic: React.FC = () => {
           onChange={handleChange}
           className="mb-4 p-2 border rounded"
         >
-          <option value="">Selecione o Tipo de Jogo</option>
           {games.map((game, index) => (
             <option key={index} value={game.name}>
               {game.name}
