@@ -4,25 +4,30 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 
+let quantity = 1
+
 const games = [
   {
     name: 'LotoFacil',
     jogosPorCartao: 3,
     mensagem:
-      'Please analyze these 2 photos I will send. Each photo contains 3 lottery games with 15 numbers per game. I need you to return a JSON object where each key represents a game, and the value is an array of 15 numbers from that game. Start by reading the first photo, separating its 3 games as `game1`, `game2`, and `game3`. Then, read the second photo, where the games will be named `game4`, `game5`, and `game6`. The result should include all 6 games, structured like this:\n\n' +
-      '{\n' +
-      '  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game4": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game5": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],\n' +
-      '  "game6": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15]\n' +
-      '}',
+      `Please analyze these ${quantity} photos I will send. Each photo contains 3 lottery games with 15 numbers per game. I need you to return a JSON object where each key represents a game, and the value is an array of 15 numbers from that game. Start by reading the first photo, separating its 3 games as \`game1\`, \`game2\`, and \`game3\`. Then, read the second photo, where the games will be named \`game4\`, \`game5\`, and \`game6\`. The result should include all 6 games, structured like this:\n\n` +
+      `{
+  "game1": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],
+  "game2": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],
+  "game3": [number1, number2, number3, number4, number5, number6, number7, number8, number9, number10, number11, number12, number13, number14, number15],
+}`,
   },
   {
     name: 'MegaSena',
-    jogosPorCartao: 2,
-    mensagem: 'teste',
+    jogosPorCartao: 3,
+    mensagem:
+      `Please analyze these ${quantity} photos I will send. Each photo contains 3 lottery games with 6 numbers per game. I need you to return a JSON object where each key represents a game, and the value is an array of 15 numbers from that game. Start by reading the first photo, separating its 3 games as \`game1\`, \`game2\`, and \`game3\`. Then, read the second photo, where the games will be named \`game4\`, \`game5\`, and \`game6\`. The result should include all ${quantity * 3} games, structured like this:\n\n` +
+      `{
+  "game1": [number1, number2, number3, number4, number5, number6],
+  "game2": [number1, number2, number3, number4, number5, number6],
+  "game3": [number1, number2, number3, number4, number5, number6],
+}`,
   },
 ]
 
@@ -117,6 +122,8 @@ const Basic: React.FC = () => {
     setLoading(true)
     try {
       const prompt = selectedGame.mensagem ?? games[0].mensagem
+      quantity = files.length
+      console.log(prompt)
       // Converte todos os arquivos para base64
       const imageParts = await Promise.all(
         acceptedFiles.map((file) => fileToBase64(file)),
@@ -130,6 +137,7 @@ const Basic: React.FC = () => {
           .replace(/```\w*\n/g, '')
           .replace(/\n```/g, '')
           .trim()
+        console.log(jsonString)
         const jsonObject = JSON.parse(jsonString)
         console.log(jsonObject)
         generateExcel(jsonObject)
